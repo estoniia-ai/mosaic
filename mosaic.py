@@ -18,7 +18,7 @@ def get_target_pixels(image):
         for y in range(0, height):
             r, g, b = image.getpixel((x,y))
             average = int((r+g+b)/3)
-            large_image_pixels.append(average)
+            target_image_pixels.append(average)
 
 def get_small_averages(path):
     for file in os.listdir(path):
@@ -41,7 +41,7 @@ def get_small_averages(path):
 
 def get_choices():
     threshold = 40
-    for pixel in large_image_pixels:
+    for pixel in target_image_pixels:
         possible_matches = []
         for b in image_brightness_list:
             if abs(b - pixel) <= threshold:
@@ -61,7 +61,7 @@ def stitch():
             count += 1
 
 def main():
-    large_image_path = input("Enter the path to the large image: ")
+    target_image_path = input("Enter the path to the target image: ")
     small_image_folder = input("Enter the path to the small images folder(folder should contain between 400-1,000 images for best results: ")
     final_size = int(input("Enter target height of final image (pixel values between 1,000-20,000 for best results): "))
     small_image_size = int(input("Enter the size of small images (pixel values between 50-200 for best results): "))
@@ -69,18 +69,18 @@ def main():
     image_list = []
     image_brightness_list = []
     new_image = Image.new('RGBA', (final_size, final_size))
-    large_image = Image.open(large_image_path)
-    large_image_alpha = Image.open(large_image_path).convert('RGBA')
+    target_image = Image.open(target_image_path)
+    target_image_alpha = Image.open(target_image_path).convert('RGBA')
     
     scale = int(final_size/small_image_size)
-    large_image_pixels = []
+    target_image_pixels = []
 
-    print("Resizing large image...")
-    large_image = resize_crop(large_image, scale)
-    large_image_alpha = resize_crop(large_image_alpha, final_size)
+    print("Resizing target image...")
+    target_image = resize_crop(target_image, scale)
+    target_image_alpha = resize_crop(target_image_alpha, final_size)
 
-    print("Getting pixel values from large image...")
-    get_target_pixels(large_image)
+    print("Getting pixel values from target image...")
+    get_target_pixels(target_image)
 
     print("Resizing and gathering pixel data from small images...")
     get_small_averages(small_image_folder)
@@ -91,7 +91,7 @@ def main():
     print("Stitching images into final output image...")
     stitch()
 
-    final_image = Image.blend(large_image_alpha, new_image, .65)
+    final_image = Image.blend(target_image_alpha, new_image, .65)
     
     print("Finished processing!")
     final_image.save("result.png")
