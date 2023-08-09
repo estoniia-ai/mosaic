@@ -40,7 +40,17 @@ def get_small_averages(path):
         image_brightness_list.append(average_brightness)
 
 def get_choices():
-    #
+    threshold = 40
+    for pixel in large_image_pixels:
+        possible_matches = []
+        for b in image_brightness_list:
+            if abs(b - pixel) <= threshold:
+                possible_matches.append(image_list[image_brightness_list.index(b)])
+        
+        if not possible_matches:
+            possible_matches.append(random.choice(image_list))
+            print("Added a random choice!")
+        choice_list.append(random.choice(possible_matches))
 
 def stitch():
     #
