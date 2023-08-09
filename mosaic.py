@@ -76,7 +76,8 @@ def main():
     large_image_pixels = []
 
     print("Resizing large image...")
-    #
+    large_image = resize_crop(large_image, scale)
+    large_image_alpha = resize_crop(large_image_alpha, final_size)
 
     print("Getting pixel values from large image...")
     get_target_pixels(large_image)
