@@ -33,7 +33,7 @@ def main():
     large_image_pixels = []
 
     print("Resizing large image...")
-    #... [Your code here]
+    #
 
     print("Getting pixel values from large image...")
     get_target_pixels(large_image)
@@ -44,12 +44,12 @@ def main():
     print("Calculating matches for pixels...")
     get_choices()
 
-    print("pasting images into final image...")
+    print("Pasting images into final output image...")
     paste()
 
     final_image = Image.blend(large_image_alpha, new_image, .65)
     
-    print("Finishing!")
+    print("Finished processing!")
     final_image.save("result.png")
 
 if __name__ == '__main__':
