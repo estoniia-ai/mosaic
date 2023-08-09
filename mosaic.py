@@ -36,7 +36,11 @@ def get_source_averages(path, image_list, image_brightness_list, source_image_si
         r_total, g_total, b_total, count = 0, 0, 0, 0
         for x in range(width):
             for y in range(height):
-                r, g, b = image.getpixel((x, y))
+                pixel = image.getpixel((x, y))
+                if len(pixel) == 4:
+                    r, g, b, a = pixel
+                else:
+                    r, g, b = pixel
                 r_total += r
                 g_total += g
                 b_total += b
@@ -61,7 +65,7 @@ def get_choices(target_image_pixels, image_list, image_brightness_list):
         choice_list.append(random.choice(possible_matches))
     return choice_list
 
-def stitch():
+def stitch(new_image, choice_list, source_image_size):
     w, h = new_image.size
     count = 0
     for x in range(0, w, source_image_size):
@@ -99,8 +103,19 @@ def main():
     choice_list = get_choices(target_image_pixels, image_list, image_brightness_list)
 
     print("Stitching images into final output image...")
-    stitch()
+    stitch(new_image, choice_list, source_image_size)
 
+    # Ensure the images have the same dimensions
+    print(target_image_alpha.size, target_image_alpha.mode)
+    print(new_image.size, new_image.mode)
+    if target_image_alpha.size != new_image.size:
+        new_image = new_image.resize(target_image_alpha.size)
+
+    # Ensure the images have the same mode
+    if target_image_alpha.mode != new_image.mode:
+        new_image = new_image.convert(target_image_alpha.mode)
+
+    # Blend the images
     final_image = Image.blend(target_image_alpha, new_image, .65)
     
     print("Finished processing!")
