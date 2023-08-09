@@ -14,7 +14,7 @@ def get_small_averages(path):
 def get_choices():
     #
 
-def paste():
+def stitch():
     #
 
 def main():
@@ -44,8 +44,8 @@ def main():
     print("Calculating matches for pixels...")
     get_choices()
 
-    print("Pasting images into final output image...")
-    paste()
+    print("Stitching images into final output image...")
+    stitch()
 
     final_image = Image.blend(large_image_alpha, new_image, .65)
     
