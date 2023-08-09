@@ -9,10 +9,10 @@ def resize_crop(image, size):
     else:
         crop_size = image.size[0]
     image = image.crop((0,0,crop_size,crop_size))
-    image.thumbnail((size, size), Image.ANTIALIAS)
+    image.thumbnail((size, size), 3)
     return image
 
-def get_target_pixels(image):
+def get_target_pixels(image, target_image_pixels):
     width, height = image.size
     for x in range(0, width):
         for y in range(0, height):
@@ -23,8 +23,9 @@ def get_target_pixels(image):
                 r, g, b = pixel
             average = int((r+g+b)/3)
             target_image_pixels.append(average)
+    return target_image_pixels
 
-def get_source_averages(path):
+def get_source_averages(path, image_list, image_brightness_list, source_image_size):
     for file in os.listdir(path):
         source_image = Image.open("{}/{}".format(path, file))
         resized_source_image = resize_crop(source_image, source_image_size)
@@ -43,7 +44,10 @@ def get_source_averages(path):
         average_brightness = int((((r_total + g_total + b_total) / count) / 3))
         image_brightness_list.append(average_brightness)
 
-def get_choices():
+    return image_list, image_brightness_list
+
+def get_choices(target_image_pixels, image_list, image_brightness_list):
+    choice_list = []
     threshold = 40
     for pixel in target_image_pixels:
         possible_matches = []
@@ -55,6 +59,7 @@ def get_choices():
             possible_matches.append(random.choice(image_list))
             print("Added a random choice!")
         choice_list.append(random.choice(possible_matches))
+    return choice_list
 
 def stitch():
     w, h = new_image.size
@@ -77,6 +82,7 @@ def main():
     target_image_alpha = Image.open(target_image_path).convert('RGBA')
     
     scale = int(final_size/source_image_size)
+
     target_image_pixels = []
 
     print("Resizing target image...")
@@ -84,13 +90,13 @@ def main():
     target_image_alpha = resize_crop(target_image_alpha, final_size)
 
     print("Getting pixel values from target image...")
-    get_target_pixels(target_image)
+    target_image_pixels = get_target_pixels(target_image, target_image_pixels)
 
     print("Resizing and gathering pixel data from source images...")
-    get_source_averages(source_image_folder)
+    image_list, image_brightness_list = get_source_averages(source_image_folder, image_list, image_brightness_list, source_image_size)
 
     print("Calculating matches for pixels...")
-    get_choices()
+    choice_list = get_choices(target_image_pixels, image_list, image_brightness_list)
 
     print("Stitching images into final output image...")
     stitch()
