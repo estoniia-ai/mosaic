@@ -3,7 +3,14 @@ import os
 import random
 
 def resize_crop(image, size):
-    #
+    crop_size = 0
+    if image.size[0] > image.size[1]:
+        crop_size = image.size[1]
+    else:
+        crop_size = image.size[0]
+    image = image.crop((0,0,crop_size,crop_size))
+    image.thumbnail((size, size), Image.ANTIALIAS)
+    return image
 
 def get_target_pixels(image):
     #
