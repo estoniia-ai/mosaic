@@ -53,7 +53,12 @@ def get_choices():
         choice_list.append(random.choice(possible_matches))
 
 def stitch():
-    #
+    w, h = new_image.size
+    count = 0
+    for x in range(0, w, small_image_size):
+        for y in range(0, h, small_image_size):
+            new_image.paste(choice_list[count], (x, y))
+            count += 1
 
 def main():
     large_image_path = input("Enter the path to the large image: ")
