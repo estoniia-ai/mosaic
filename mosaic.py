@@ -20,11 +20,11 @@ def get_target_pixels(image):
             average = int((r+g+b)/3)
             target_image_pixels.append(average)
 
-def get_small_averages(path):
+def get_source_averages(path):
     for file in os.listdir(path):
-        small_image = Image.open("{}/{}".format(path, file))
-        resized_small_image = resize_crop(small_image, small_image_size)
-        image_list.append(resized_small_image)
+        source_image = Image.open("{}/{}".format(path, file))
+        resized_source_image = resize_crop(source_image, source_image_size)
+        image_list.append(resized_source_image)
 
     for image in image_list:
         width, height = image.size
@@ -55,16 +55,16 @@ def get_choices():
 def stitch():
     w, h = new_image.size
     count = 0
-    for x in range(0, w, small_image_size):
-        for y in range(0, h, small_image_size):
+    for x in range(0, w, source_image_size):
+        for y in range(0, h, source_image_size):
             new_image.paste(choice_list[count], (x, y))
             count += 1
 
 def main():
     target_image_path = input("Enter the path to the target image: ")
-    small_image_folder = input("Enter the path to the small images folder(folder should contain between 400-1,000 images for best results: ")
+    source_image_folder = input("Enter the path to the source images folder(folder should contain between 400-1,000 images for best results: ")
     final_size = int(input("Enter target height of final image (pixel values between 1,000-20,000 for best results): "))
-    small_image_size = int(input("Enter the size of small images (pixel values between 50-200 for best results): "))
+    source_image_size = int(input("Enter the size of source images (pixel values between 50-200 for best results): "))
     
     image_list = []
     image_brightness_list = []
@@ -72,7 +72,7 @@ def main():
     target_image = Image.open(target_image_path)
     target_image_alpha = Image.open(target_image_path).convert('RGBA')
     
-    scale = int(final_size/small_image_size)
+    scale = int(final_size/source_image_size)
     target_image_pixels = []
 
     print("Resizing target image...")
@@ -82,8 +82,8 @@ def main():
     print("Getting pixel values from target image...")
     get_target_pixels(target_image)
 
-    print("Resizing and gathering pixel data from small images...")
-    get_small_averages(small_image_folder)
+    print("Resizing and gathering pixel data from source images...")
+    get_source_averages(source_image_folder)
 
     print("Calculating matches for pixels...")
     get_choices()
