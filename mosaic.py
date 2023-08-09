@@ -16,7 +16,11 @@ def get_target_pixels(image):
     width, height = image.size
     for x in range(0, width):
         for y in range(0, height):
-            r, g, b = image.getpixel((x,y))
+            pixel = image.getpixel((x,y))
+            if len(pixel) == 4:
+                r, g, b, a = pixel
+            else:
+                r, g, b = pixel
             average = int((r+g+b)/3)
             target_image_pixels.append(average)
 
