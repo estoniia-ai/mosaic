@@ -13,7 +13,12 @@ def resize_crop(image, size):
     return image
 
 def get_target_pixels(image):
-    #
+    width, height = image.size
+    for x in range(0, width):
+        for y in range(0, height):
+            r, g, b = image.getpixel((x,y))
+            average = int((r+g+b)/3)
+            large_image_pixels.append(average)
 
 def get_small_averages(path):
     #
