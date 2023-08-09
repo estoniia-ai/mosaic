@@ -21,7 +21,23 @@ def get_target_pixels(image):
             large_image_pixels.append(average)
 
 def get_small_averages(path):
-    #
+    for file in os.listdir(path):
+        small_image = Image.open("{}/{}".format(path, file))
+        resized_small_image = resize_crop(small_image, small_image_size)
+        image_list.append(resized_small_image)
+
+    for image in image_list:
+        width, height = image.size
+        r_total, g_total, b_total, count = 0, 0, 0, 0
+        for x in range(width):
+            for y in range(height):
+                r, g, b = image.getpixel((x, y))
+                r_total += r
+                g_total += g
+                b_total += b
+                count += 1
+        average_brightness = int((((r_total + g_total + b_total) / count) / 3))
+        image_brightness_list.append(average_brightness)
 
 def get_choices():
     #
