@@ -2,16 +2,6 @@ from PIL import Image
 import os
 import random
 
-def resize_crop(image, size):
-    crop_size = 0
-    if image.size[0] > image.size[1]:
-        crop_size = image.size[1]
-    else:
-        crop_size = image.size[0]
-    image = image.crop((0,0,crop_size,crop_size))
-    image.thumbnail((size, size), 3)
-    return image
-
 def resize_proportionally(image, target_size):
     aspect = image.width / image.height
     if image.width > image.height:
@@ -107,7 +97,7 @@ def main():
     print("Resizing target image...")
     target_image = resize_crop(target_image, scale)
     target_image_alpha = resize_crop(target_image_alpha, final_size)
-    
+
     print("Getting pixel values from target image...")
     target_image_pixels = get_target_pixels(target_image_resized, target_image_pixels)
 
