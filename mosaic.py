@@ -107,9 +107,9 @@ def main():
     print("Resizing target image...")
     target_image = resize_crop(target_image, scale)
     target_image_alpha = resize_crop(target_image_alpha, final_size)
-
+    
     print("Getting pixel values from target image...")
-    target_image_pixels = get_target_pixels(target_image, target_image_pixels)
+    target_image_pixels = get_target_pixels(target_image_resized, target_image_pixels)
 
     print("Resizing and gathering pixel data from source images...")
     image_list, image_brightness_list = get_source_averages(source_image_folder, image_list, image_brightness_list, source_image_size)
