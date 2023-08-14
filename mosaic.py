@@ -77,10 +77,9 @@ def get_choices(target_image_pixels, image_list, image_brightness_list):
     return choice_list
 
 def stitch(new_image, choice_list, source_image_size):
-    w, h = new_image.size
     count = 0
-    for x in range(0, w, source_image_size):
-        for y in range(0, h, source_image_size):
+    for x in range(0, new_image.width, source_image_size):
+        for y in range(0, new_image.height, source_image_size):
             new_image.paste(choice_list[count], (x, y))
             count += 1
 
