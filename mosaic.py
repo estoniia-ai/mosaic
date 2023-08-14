@@ -100,6 +100,11 @@ def main():
     new_image = Image.new('RGBA', (scale * source_image_size, scale * source_image_size))
     target_image = Image.open(target_image_path)
     target_image_alpha = Image.open(target_image_path).convert('RGBA')
+    target_image_resized = resize_proportionally(target_image, final_size)
+
+    grid_width = target_image_resized.width // source_image_size
+    grid_height = target_image_resized.height // source_image_size
+
 
     target_image_pixels = []
 
