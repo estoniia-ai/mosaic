@@ -12,6 +12,17 @@ def resize_crop(image, size):
     image.thumbnail((size, size), 3)
     return image
 
+def resize_proportionally(image, target_size):
+    aspect = image.width / image.height
+    if image.width > image.height:
+        new_width = target_size
+        new_height = int(target_size / aspect)
+    else:
+        new_height = target_size
+        new_width = int(target_size * aspect)
+    image = image.resize((new_width, new_height))
+    return image
+
 def get_target_pixels(image, target_image_pixels):
     width, height = image.size
     for x in range(0, width):
