@@ -81,11 +81,14 @@ def main():
     
     image_list = []
     image_brightness_list = []
-    new_image = Image.new('RGBA', (final_size, final_size))
+
+    # Set scale
+    scale = final_size // source_image_size
+
+    # Create the new image using scale
+    new_image = Image.new('RGBA', (scale * source_image_size, scale * source_image_size))
     target_image = Image.open(target_image_path)
     target_image_alpha = Image.open(target_image_path).convert('RGBA')
-    
-    scale = int(final_size/source_image_size)
 
     target_image_pixels = []
 
