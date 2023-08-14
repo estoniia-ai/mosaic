@@ -93,11 +93,8 @@ def main():
     image_list = []
     image_brightness_list = []
 
-    # Set scale
-    scale = final_size // source_image_size
-
-    # Create the new image using scale
-    new_image = Image.new('RGBA', (scale * source_image_size, scale * source_image_size))
+    # Create the new image
+    new_image = Image.new('RGBA', (target_image_resized.width, target_image_resized.height))
     target_image = Image.open(target_image_path)
     target_image_alpha = Image.open(target_image_path).convert('RGBA')
     target_image_resized = resize_proportionally(target_image, final_size)
