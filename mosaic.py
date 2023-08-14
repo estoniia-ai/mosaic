@@ -75,28 +75,20 @@ def stitch(new_image, choice_list, source_image_size):
 
 def main():
     target_image_path = input("Enter the path to the target image: ")
-    source_image_folder = input("Enter the path to the source images folder(folder should contain between 400-1,000 images for best results: ")
+    source_image_folder = input("Enter the path to the source images folder (folder should contain between 400-1,000 images for best results): ")
     final_size = int(input("Enter target height of final image (pixel values between 1,000-20,000 for best results): "))
     source_image_size = int(input("Enter the size of source images (pixel values between 50-200 for best results): "))
     
     image_list = []
     image_brightness_list = []
 
-    # Create the new image
-    new_image = Image.new('RGBA', (target_image_resized.width, target_image_resized.height))
-    target_image = Image.open(target_image_path)
-    target_image_alpha = Image.open(target_image_path).convert('RGBA')
+    target_image = Image.open(target_image_path).convert('RGBA')
     target_image_resized = resize_proportionally(target_image, final_size)
 
-    grid_width = target_image_resized.width // source_image_size
-    grid_height = target_image_resized.height // source_image_size
-
-
+    # Create the new image
+    new_image = Image.new('RGBA', (target_image_resized.width, target_image_resized.height))
+    
     target_image_pixels = []
-
-    print("Resizing target image...")
-    target_image = resize_crop(target_image, scale)
-    target_image_alpha = resize_crop(target_image_alpha, final_size)
 
     print("Getting pixel values from target image...")
     target_image_pixels = get_target_pixels(target_image_resized, target_image_pixels)
@@ -111,17 +103,14 @@ def main():
     stitch(new_image, choice_list, source_image_size)
 
     # Ensure the images have the same dimensions
-    print(target_image_alpha.size, target_image_alpha.mode)
+    print(target_image_resized.size, target_image_resized.mode)
     print(new_image.size, new_image.mode)
-    if target_image_alpha.size != new_image.size:
-        new_image = new_image.resize(target_image_alpha.size)
 
-    # Ensure the images have the same mode
-    if target_image_alpha.mode != new_image.mode:
-        new_image = new_image.convert(target_image_alpha.mode)
+    if target_image_resized.size != new_image.size:
+        new_image = new_image.resize(target_image_resized.size)
 
     # Blend the images
-    final_image = Image.blend(target_image_alpha, new_image, .65)
+    final_image = Image.blend(target_image_resized, new_image, .65)
     
     print("Finished processing!")
     final_image.save("result.png")
