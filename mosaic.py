@@ -12,6 +12,24 @@ def resize_crop(image, size):
     image.thumbnail((size, size), 3)
     return image
 
+def resize_to_target_size(image, target_size):
+    """
+    Resize the image to the target size while maintaining the original aspect ratio.
+    """
+    aspect_ratio = image.width / image.height
+    new_width = target_size
+    new_height = target_size
+
+    if aspect_ratio > 1:
+        # Image is wider than tall
+        new_height = int(target_size / aspect_ratio)
+    elif aspect_ratio < 1:
+        # Image is taller than wide
+        new_width = int(target_size * aspect_ratio)
+
+    return image.resize((new_width, new_height))
+
+
 def get_target_pixels(image, target_image_pixels):
     width, height = image.size
     for x in range(0, width):
@@ -81,16 +99,22 @@ def main():
     
     image_list = []
     image_brightness_list = []
-    new_image = Image.new('RGBA', (final_size, final_size))
+    
     target_image = Image.open(target_image_path)
     target_image_alpha = Image.open(target_image_path).convert('RGBA')
-    
+
+    # Proportionally resize the target image to desired final_size.
+    target_image_resized = resize_to_target_size(target_image, final_size)
+
+    new_image = Image.new('RGBA', target_image_resized.size)
+
+    # Scale remains the same, used for cropping the target image.
     scale = int(final_size/source_image_size)
 
     target_image_pixels = []
 
     print("Resizing target image...")
-    target_image = resize_crop(target_image, scale)
+    target_image = resize_crop(target_image_resized, scale)
     target_image_alpha = resize_crop(target_image_alpha, final_size)
 
     print("Getting pixel values from target image...")
