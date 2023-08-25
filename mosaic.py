@@ -1,6 +1,16 @@
+#!/usr/bin/env python3
 from PIL import Image
 import os
 import random
+import io
+import requests
+import firebase_admin
+from firebase_admin import credentials, storage
+from datetime import timedelta
+
+# Initialize Firebase Admin SDK
+cred = credentials.Certificate("/home/jaanikaraik/ImageApp/venv/serviceAccountKey.json")
+firebase_admin.initialize_app(cred, {'storageBucket': 'apptesthelp-57dc0'})
 
 def resize_crop(image, size):
     crop_size = 0
@@ -11,24 +21,6 @@ def resize_crop(image, size):
     image = image.crop((0,0,crop_size,crop_size))
     image.thumbnail((size, size), 3)
     return image
-
-def resize_to_target_size(image, target_size):
-    """
-    Resize the image to the target size while maintaining the original aspect ratio.
-    """
-    aspect_ratio = image.width / image.height
-    new_width = target_size
-    new_height = target_size
-
-    if aspect_ratio > 1:
-        # Image is wider than tall
-        new_height = int(target_size / aspect_ratio)
-    elif aspect_ratio < 1:
-        # Image is taller than wide
-        new_width = int(target_size * aspect_ratio)
-
-    return image.resize((new_width, new_height))
-
 
 def get_target_pixels(image, target_image_pixels):
     width, height = image.size
@@ -43,9 +35,14 @@ def get_target_pixels(image, target_image_pixels):
             target_image_pixels.append(average)
     return target_image_pixels
 
-def get_source_averages(path, image_list, image_brightness_list, source_image_size):
-    for file in os.listdir(path):
-        source_image = Image.open("{}/{}".format(path, file))
+def get_source_averages_from_firestore(bucket, image_list, image_brightness_list, source_image_size):
+    """Fetch images from Firestore, compute their average brightness, and add them to the image list."""
+    blobs = bucket.list_blobs()
+    
+    for blob in blobs:
+        url = blob.generate_signed_url(timedelta(seconds=300))  # URL valid for 5 minutes
+        response = requests.get(url)
+        source_image = Image.open(io.BytesIO(response.content))
         resized_source_image = resize_crop(source_image, source_image_size)
         image_list.append(resized_source_image)
 
@@ -79,7 +76,7 @@ def get_choices(target_image_pixels, image_list, image_brightness_list):
         
         if not possible_matches:
             possible_matches.append(random.choice(image_list))
-            print("Added a random choice!")
+            #print("Added a random choice!")
         choice_list.append(random.choice(possible_matches))
     return choice_list
 
@@ -92,36 +89,33 @@ def stitch(new_image, choice_list, source_image_size):
             count += 1
 
 def main():
-    target_image_path = input("Enter the path to the target image: ")
-    source_image_folder = input("Enter the path to the source images folder(folder should contain between 400-1,000 images for best results: ")
-    final_size = int(input("Enter target height of final image (pixel values between 1,000-20,000 for best results): "))
-    source_image_size = int(input("Enter the size of source images (pixel values between 50-200 for best results): "))
+    target_image_path = "/home/jaanikaraik/ImageApp/EstoniiaAI/template.png"
+    #input("Enter the path to the target image: ")
+    final_size = 42000
+    #int(input("Enter target height of final image (pixel values between 1,000-20,000 for best results): "))
+    source_image_size = 420
+    #int(input("Enter the size of source images (pixel values between 50-200 for best results): "))
     
     image_list = []
     image_brightness_list = []
-    
+    new_image = Image.new('RGBA', (final_size, final_size))
     target_image = Image.open(target_image_path)
     target_image_alpha = Image.open(target_image_path).convert('RGBA')
-
-    # Proportionally resize the target image to desired final_size.
-    target_image_resized = resize_to_target_size(target_image, final_size)
-
-    new_image = Image.new('RGBA', target_image_resized.size)
-
-    # Scale remains the same, used for cropping the target image.
+    
     scale = int(final_size/source_image_size)
 
     target_image_pixels = []
 
     print("Resizing target image...")
-    target_image = resize_crop(target_image_resized, scale)
+    target_image = resize_crop(target_image, scale)
     target_image_alpha = resize_crop(target_image_alpha, final_size)
 
     print("Getting pixel values from target image...")
     target_image_pixels = get_target_pixels(target_image, target_image_pixels)
 
-    print("Resizing and gathering pixel data from source images...")
-    image_list, image_brightness_list = get_source_averages(source_image_folder, image_list, image_brightness_list, source_image_size)
+    bucket = storage.bucket()
+    print("Resizing and gathering pixel data from source images in Firestore...")
+    image_list, image_brightness_list = get_source_averages_from_firestore(bucket, image_list, image_brightness_list, source_image_size)
 
     print("Calculating matches for pixels...")
     choice_list = get_choices(target_image_pixels, image_list, image_brightness_list)
